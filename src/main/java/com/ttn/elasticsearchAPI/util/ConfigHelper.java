@@ -3,10 +3,12 @@ package com.ttn.elasticsearchAPI.util;
 
 import groovy.util.ConfigObject;
 import groovy.util.ConfigSlurper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
@@ -18,9 +20,6 @@ import java.util.Map;
 @Primary
 @Component
 public class ConfigHelper {
-
-    @Autowired
-    private HttpServletRequest currentRequest;
 
     private ConfigObject configObject;
 
@@ -35,6 +34,10 @@ public class ConfigHelper {
         return (ConfigObject) configObject.get("elasticsearch");
     }
 
+    private ConfigObject getElasticSearchTimeoutConfig() {
+        return (ConfigObject) getElasticSearchConfig().get("timeouts");
+    }
+
     private ConfigObject getGETAPIConfig() {
         return (ConfigObject) getAPIConfig().get("get");
     }
@@ -44,7 +47,9 @@ public class ConfigHelper {
     }
 
     private ConfigObject getAPIConfigForCurrentRequest() {
-        return apiConfigMap.get(currentRequest.getMethod()).get(currentRequest.getRequestURI());
+        return apiConfigMap
+                .get(getCurrentRequest().getMethod())
+                .get(getCurrentRequest().getRequestURI());
     }
 
     private HashMap<String, Map<String, ConfigObject>> buildAPIConfigMap() {
@@ -58,12 +63,39 @@ public class ConfigHelper {
         return configMap;
     }
 
+    public HttpServletRequest getCurrentRequest() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+            return request;
+        }
+        return null;
+    }
+
     public ConfigObject getAPIConfig() {
         return (ConfigObject) configObject.get("api");
     }
 
     public String getElasticsearchHost() {
+
+
         return (String) getElasticSearchConfig().get("url");
+    }
+
+    public Integer getElasticsearchPort() {
+        return (Integer) getElasticSearchConfig().get("port");
+    }
+
+    public Integer getElasticsearchConnectionTimeout() {
+        return (Integer) getElasticSearchTimeoutConfig().get("connect");
+    }
+
+    public Integer getElasticsearchSocketTimeout() {
+        return (Integer) getElasticSearchTimeoutConfig().get("socket");
+    }
+
+    public Integer getElasticsearchRetryTimeout() {
+        return (Integer) getElasticSearchTimeoutConfig().get("retry");
     }
 
     public String getSearchIndexPath() {
@@ -78,6 +110,7 @@ public class ConfigHelper {
 
     public String getResponseFilters() {
         ConfigObject configObject = getAPIConfigForCurrentRequest();
+
         return (String) ((ConfigObject) configObject.get("operation")).get("responseFilters");
     }
 

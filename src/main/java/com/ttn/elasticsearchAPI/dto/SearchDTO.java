@@ -31,7 +31,7 @@ public class SearchDTO {
         return Collections.unmodifiableMap(new HashMap<String, String>() {
             {
                 put("filter_path", responseFilters);
-                put("_pretty", "true");
+                put("pretty", "true");
             }
         });
     }

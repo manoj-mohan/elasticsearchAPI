@@ -11,78 +11,113 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 elasticsearch {
-    url = "http://localhost"
-    port = 9200
-
+    url = "localhost"
+    port = 9300
+    timeouts {
+        connect = 5000
+        socket = 60000
+        retry = 60000
+    }
 }
 
 
 api {
     post {
-
-        searchAgain {
-            uri = "/searchAgain"
-            operation {
-                path = "raceclips/_search"
-
-            }
-        }
-
         search {
             uri = "/search"
             operation {
-                path = "raceclips/_search"
-                query = """{
-                                        "query": {
-                                            "dis_max": {
-                                                "queries": [
-                                                    {
-                                                        "multi_match": {
-                                                            "query": "##SEARCH_QUERY##",
-                                                            "fields": [
-                                                                "name",
-                                                                "meeting.name",
-                                                                "meeting.location"
-                                                            ],
-                                                            "fuzziness": 1
-                                                        }
-                                                    },
-                                                    {
-                                                        "nested": {
-                                                            "path": "runner",
-                                                            "score_mode": "avg",
-                                                            "query": {
-                                                                "multi_match": {
-                                                                    "query": "##SEARCH_QUERY##",
-                                                                    "fields": [
-                                                                        "runner.name",
-                                                                        "runner.trainer.name",
-                                                                        "runner.jockey.name"
-                                                                    ],
-                                                                    "fuzziness": 1
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                ],
-                                                "tie_breaker": 0.3
-                                            }
-                                        },
-                                        "sort": [
-                                            {
-                                                "_score": {
-                                                    "order": "desc"
-                                                }
-                                            },
-                                            {
-                                                "startTime": {
-                                                    "order": "desc"
-                                                }
-                                            }
+                path = "/raceclips/_search"
+                query = """{  
+                              "query": {
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "multi_match": {
+                                        "query": "##SEARCH_QUERY##",
+                                        "fields": [
+                                          "name",
+                                          "meeting.name",
+                                          "meeting.location"
                                         ],
-                                        "size": ##MAX##,
-                                        "from": ##OFFSET##
-                                    }"""
+                                        "minimum_should_match": 2,
+                                        "prefix_length": 2,
+                                        "fuzziness": 0,
+                                        "boost": 10
+                                      }
+                                    },
+                                    {
+                                      "multi_match": {
+                                        "query": "##SEARCH_QUERY##",
+                                        "fields": [
+                                          "name",
+                                          "meeting.name",
+                                          "meeting.location"
+                                        ],
+                                        "minimum_should_match": 2,
+                                        "fuzziness": "AUTO",
+                                        "prefix_length": 2
+                                      }
+                                    },
+                                    {
+                                      "nested": {
+                                        "path": "runner",
+                                        "score_mode": "avg",
+                                        "query": {
+                                          "multi_match": {
+                                            "query": "##SEARCH_QUERY##",
+                                            "fields": [
+                                              "runner.name",
+                                              "runner.trainer.name",
+                                              "runner.jockey.name"
+                                            ],
+                                            "minimum_should_match": 2,
+                                            "fuzziness": 0,
+                                            "prefix_length": 2
+                                          }
+                                        },
+                                        "inner_hits": {}
+                                      }
+                                    },
+                                    {
+                                      "nested": {
+                                        "path": "runner",
+                                        "score_mode": "avg",
+                                        "query": {
+                                          "multi_match": {
+                                            "query": "##SEARCH_QUERY##",
+                                            "fields": [
+                                              "runner.name",
+                                              "runner.trainer.name",
+                                              "runner.jockey.name"
+                                            ],
+                                            "minimum_should_match": 2,
+                                            "fuzziness": "AUTO",
+                                            "prefix_length": 2,
+                                            "boost": 2
+                                          }
+                                        },
+                                        "inner_hits": {}
+                                      }
+                                    }
+                                  ],
+                                  "tie_breaker": 0.3
+                                }
+                              },
+                              "sort": [
+                                {
+                                  "_score": {
+                                    "order": "desc"
+                                  }
+                                },
+                                {
+                                  "startTime": {
+                                    "order": "desc"
+                                  }
+                                }
+                              ],
+                              "size": ##MAX##,
+                              "from": ##OFFSET##
+                            }"""
                 responseFilters = "took,hits.total,hits.hits._source"
             }
             processors {
