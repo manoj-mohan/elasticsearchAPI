@@ -1,5 +1,6 @@
 package com.ttn.elasticsearchAPI.interceptor;
 
+import com.ttn.elasticsearchAPI.dto.ResponseDTO;
 import com.ttn.elasticsearchAPI.util.ConfigHelper;
 import groovy.lang.Closure;
 import groovy.util.ConfigObject;
@@ -29,9 +30,11 @@ public class ResponseModifier implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        ConfigObject processorConfig = configHelper.getProcessorMap();
-        if (!(processorConfig.isEmpty() || ((ConfigObject) processorConfig.get("post")).isEmpty())) {
-            body = ((Closure) ((ConfigObject) processorConfig.get("post")).get("json")).call(body, returnType, selectedContentType, selectedConverterType, request, response);
+        if (configHelper.isConfiguredRoute() && (body.getClass() == ResponseDTO.class)) {
+            ConfigObject processorConfig = configHelper.getProcessorMap();
+            if (!(processorConfig.isEmpty() || ((ConfigObject) processorConfig.get("post")).isEmpty())) {
+                body = ((Closure) ((ConfigObject) processorConfig.get("post")).get("json")).call(body, returnType, selectedContentType, selectedConverterType, request, response);
+            }
         }
         return body;
     }

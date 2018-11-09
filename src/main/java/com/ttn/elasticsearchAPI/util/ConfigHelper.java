@@ -118,4 +118,8 @@ public class ConfigHelper {
         ConfigObject configObject = getAPIConfigForCurrentRequest();
         return ((ConfigObject) configObject.get("processors"));
     }
+
+    public Boolean isConfiguredRoute() {
+        return getAPIConfigForCurrentRequest() != null;
+    }
 }

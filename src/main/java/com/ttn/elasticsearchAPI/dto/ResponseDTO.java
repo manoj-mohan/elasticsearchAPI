@@ -24,6 +24,10 @@ public class ResponseDTO {
 
     private Integer offset;
 
+    private String message;
+
+    private String code;
+
     public ResponseDTO(Response response, SearchDTO dto) throws IOException {
         searchResponse = EntityUtils.toString(response.getEntity());
         status = response.getStatusLine();
