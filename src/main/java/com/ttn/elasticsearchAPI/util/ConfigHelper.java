@@ -11,8 +11,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class ConfigHelper {
     private Map<String, Map<String, ConfigObject>> apiConfigMap;
 
     private ConfigHelper() throws MalformedURLException {
-        configObject = new ConfigSlurper().parse(new URL("classpath:application.groovy"));
+        configObject = new ConfigSlurper().parse(new File(System.getenv("SEARCH_CONFIG_PATH")).toURI().toURL());
         apiConfigMap = buildAPIConfigMap();
     }
 
@@ -77,8 +77,6 @@ public class ConfigHelper {
     }
 
     public String getElasticsearchHost() {
-
-
         return (String) getElasticSearchConfig().get("url");
     }
 
