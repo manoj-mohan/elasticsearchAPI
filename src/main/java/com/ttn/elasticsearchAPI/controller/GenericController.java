@@ -6,6 +6,7 @@ import com.ttn.elasticsearchAPI.dto.SearchDTO;
 import com.ttn.elasticsearchAPI.service.GenericService;
 import com.ttn.elasticsearchAPI.util.ConfigHelper;
 import com.ttn.elasticsearchAPI.util.QueryBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 
+@Slf4j
 @RestController
 @RestControllerAdvice
 public class GenericController {
@@ -37,17 +39,21 @@ public class GenericController {
     }
 
     public ResponseDTO postRequest(@Valid @RequestBody SearchCO searchCO, HttpServletRequest httpServletRequest) {
+        log.trace("-> postRequest");
+        log.debug("searchCO: "+ searchCO);
         ResponseDTO responseDTO = null;
         try {
             responseDTO = genericService.search(generateSearchDTO(searchCO, httpServletRequest));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        log.trace("<- postRequest");
         return responseDTO;
     }
 
     private SearchDTO generateSearchDTO(SearchCO searchCO, HttpServletRequest currentRequest) {
-        return new SearchDTO(
+        log.trace("-> generateSearchDTO");
+        SearchDTO dto = new SearchDTO(
                 queryBuilder.generateSearchQuery(searchCO),
                 configHelper.getSearchIndexPath(),
                 currentRequest.getMethod(),
@@ -55,5 +61,7 @@ public class GenericController {
                 searchCO.getLimit(),
                 searchCO.getOffset()
         );
+        log.trace("<- generateSearchDTO");
+        return dto;
     }
 }

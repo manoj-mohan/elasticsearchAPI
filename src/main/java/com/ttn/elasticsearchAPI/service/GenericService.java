@@ -3,6 +3,7 @@ package com.ttn.elasticsearchAPI.service;
 import com.ttn.elasticsearchAPI.dto.ResponseDTO;
 import com.ttn.elasticsearchAPI.dto.SearchDTO;
 import com.ttn.elasticsearchAPI.util.ConfigHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -17,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class GenericService {
 
@@ -30,7 +32,6 @@ public class GenericService {
         initializeConnection();
     }
 
-    @PostConstruct
     private void initializeConnection() {
         if (restClient == null) {
             RestClientBuilder builder = RestClient
@@ -46,6 +47,7 @@ public class GenericService {
     }
 
     public ResponseDTO search(SearchDTO dto) throws IOException {
+        log.trace("-> search, searchDTO" + dto);
         HttpEntity entity = new NStringEntity(dto.getQuery(), ContentType.APPLICATION_JSON);
         Response response = restClient.performRequest(
                 dto.getRequestMethod(),
@@ -53,6 +55,7 @@ public class GenericService {
                 dto.getResponseFilters(),
                 entity
         );
+        log.trace("<- search");
         return new ResponseDTO(response, dto);
     }
 

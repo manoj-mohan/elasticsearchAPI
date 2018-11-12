@@ -108,7 +108,6 @@ public class ConfigHelper {
 
     public String getResponseFilters() {
         ConfigObject configObject = getAPIConfigForCurrentRequest();
-
         return (String) ((ConfigObject) configObject.get("operation")).get("responseFilters");
     }
 
