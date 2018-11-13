@@ -18,14 +18,14 @@ public class QueryBuilder {
     private ConfigHelper configHelper;
 
     public String generateSearchQuery(SearchCO searchCO) {
-        log.trace("-> generateSearchQuery");
-        log.trace("-> configHelper.getSearchQuery()");
+        log.debug("-> generateSearchQuery");
+        log.debug("-> configHelper.getSearchQuery()");
         String query = configHelper.getSearchQuery();
-        log.trace("<- configHelper.getSearchQuery()");
+        log.debug("<- configHelper.getSearchQuery()");
         query = StringUtils.replace(query, "##SEARCH_QUERY##", searchCO.getQuery());
         query = StringUtils.replace(query, "##MAX##", searchCO.getLimit().toString());
         query = StringUtils.replace(query, "##OFFSET##", searchCO.getOffset().toString());
-        log.trace("<- generateSearchQuery");
+        log.debug("<- generateSearchQuery");
         return query;
     }
 }

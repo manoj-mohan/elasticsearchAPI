@@ -32,16 +32,16 @@ public class ResponseModifier implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        log.trace("-> beforeBodyWrite");
+        log.debug("-> beforeBodyWrite");
         if (configHelper.isConfiguredRoute() && (body.getClass() == ResponseDTO.class)) {
             ConfigObject processorConfig = configHelper.getProcessorMap();
             if (!(processorConfig.isEmpty() || ((ConfigObject) processorConfig.get("post")).isEmpty())) {
-                log.trace("-> executing closure");
+                log.debug("-> executing closure");
                 body = ((Closure) ((ConfigObject) processorConfig.get("post")).get("json")).call(body, returnType, selectedContentType, selectedConverterType, request, response);
-                log.trace("<- executing closure");
+                log.debug("<- executing closure");
             }
         }
-        log.trace("<- beforeBodyWrite");
+        log.debug("<- beforeBodyWrite");
         return body;
     }
 }

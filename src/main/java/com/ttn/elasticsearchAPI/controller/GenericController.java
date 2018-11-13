@@ -39,7 +39,7 @@ public class GenericController {
     }
 
     public ResponseDTO postRequest(@Valid @RequestBody SearchCO searchCO, HttpServletRequest httpServletRequest) {
-        log.trace("-> postRequest");
+        log.debug("-> postRequest");
         log.debug("searchCO: "+ searchCO);
         ResponseDTO responseDTO = null;
         try {
@@ -47,12 +47,12 @@ public class GenericController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.trace("<- postRequest");
+        log.debug("<- postRequest");
         return responseDTO;
     }
 
     private SearchDTO generateSearchDTO(SearchCO searchCO, HttpServletRequest currentRequest) {
-        log.trace("-> generateSearchDTO");
+        log.debug("-> generateSearchDTO");
         SearchDTO dto = new SearchDTO(
                 queryBuilder.generateSearchQuery(searchCO),
                 configHelper.getSearchIndexPath(),
@@ -61,7 +61,7 @@ public class GenericController {
                 searchCO.getLimit(),
                 searchCO.getOffset()
         );
-        log.trace("<- generateSearchDTO");
+        log.debug("<- generateSearchDTO");
         return dto;
     }
 }

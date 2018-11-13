@@ -30,6 +30,8 @@
 build/
 bin/
 elasticDataIngester/
+.attach_pid*
+
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -44,3 +46,4 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 )
 .vscode/
+.attach_pid25840

@@ -47,15 +47,16 @@ public class GenericService {
     }
 
     public ResponseDTO search(SearchDTO dto) throws IOException {
-        log.trace("-> search, searchDTO" + dto);
+        log.debug("-> search");
+        log.trace(dto.toString());
         HttpEntity entity = new NStringEntity(dto.getQuery(), ContentType.APPLICATION_JSON);
         Response response = restClient.performRequest(
                 dto.getRequestMethod(),
                 dto.getPath(),
-                dto.getResponseFilters(),
+                dto.getResponseFilters(),       
                 entity
         );
-        log.trace("<- search");
+        log.debug("<- search");
         return new ResponseDTO(response, dto);
     }
 
