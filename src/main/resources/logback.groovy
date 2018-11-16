@@ -1,5 +1,5 @@
 import ch.qos.logback.classic.AsyncAppender
-import ch.qos.logback.classic.PatternLayout
+
 import static ch.qos.logback.classic.Level.INFO
 
 scan("30 seconds")
@@ -24,8 +24,5 @@ appender("Async-Appender", AsyncAppender) {
     appenderRef("File-Appender")
 }
 logger("com.ttn.elasticsearchAPI", DEBUG, ["Async-Appender"], false)
-logger("org.elasticsearch.client", TRACE, ["Async-Appender"], false)
-logger("org.elasticsearch.client.sniffer", TRACE, ["Async-Appender"], false)
-logger("org.elasticsearch.client.tracer", TRACE, ["Async-Appender"], false)
 
 root(INFO, ["Console-Appender"])

@@ -2,20 +2,17 @@ package com.ttn.elasticsearchAPI.interceptor;
 
 
 import com.ttn.elasticsearchAPI.util.ConfigHelper;
+import groovy.lang.Closure;
 import groovy.util.ConfigObject;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.extern.slf4j.Slf4j;
-
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import groovy.lang.Closure;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -31,6 +28,7 @@ public class RequestInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         MDC.put("requestID", (String) UUID.randomUUID().toString());
+        log.trace("-> preHandle");
         boolean validPreHandling = false;
         ConfigObject processorConfig = configHelper.getProcessorMap();
         if (!processorConfig.isEmpty() && !((ConfigObject) processorConfig.get("pre")).isEmpty()) {
@@ -39,6 +37,7 @@ public class RequestInterceptor implements HandlerInterceptor {
                 validPreHandling = (boolean) processResponse;
             }
         }
+        log.trace("<- preHandle");
         return validPreHandling;
     }
 }

@@ -29,7 +29,13 @@ api {
             uri = "/search"
             operation {
                 path = "/raceclips/_search"
-                query = """{  
+                query = """{
+                              "_source": [
+                                "name",
+                                "raceId",
+                                "hlsURL",
+                                "replayImgURL",
+                              ],
                               "query": {
                                 "dis_max": {
                                   "queries": [
@@ -42,9 +48,22 @@ api {
                                           "meeting.location"
                                         ],
                                         "minimum_should_match": 2,
-                                        "prefix_length": 2,
                                         "fuzziness": 0,
-                                        "boost": 10
+                                        "boost": 55
+                                      }
+                                    },
+                                    {
+                                      "multi_match": {
+                                        "query": "##SEARCH_QUERY##",
+                                        "fields": [
+                                          "name",
+                                          "meeting.name",
+                                          "meeting.location"
+                                        ],
+                                        "type": "phrase_prefix", 
+                                        "minimum_should_match": 2,
+                                        "prefix_length": 2,
+                                        "boost": 7
                                       }
                                     },
                                     {
@@ -57,7 +76,8 @@ api {
                                         ],
                                         "minimum_should_match": 2,
                                         "fuzziness": "AUTO",
-                                        "prefix_length": 2
+                                        "prefix_length": 2,
+                                        "boost": 3
                                       }
                                     },
                                     {
@@ -74,10 +94,17 @@ api {
                                             ],
                                             "minimum_should_match": 2,
                                             "fuzziness": 0,
-                                            "prefix_length": 2
+                                            "prefix_length": 2,
+                                            "boost": 5
                                           }
                                         },
-                                        "inner_hits": {}
+                                        "inner_hits": {
+                                          "_source": [
+                                            "runner.name",
+                                            "runner.trainer.name",
+                                            "runner.jockey.name"
+                                          ]
+                                        }
                                       }
                                     },
                                     {
@@ -94,15 +121,19 @@ api {
                                             ],
                                             "minimum_should_match": 2,
                                             "fuzziness": "AUTO",
-                                            "prefix_length": 2,
-                                            "boost": 2
+                                            "prefix_length": 2
                                           }
                                         },
-                                        "inner_hits": {}
+                                        "inner_hits": {
+                                          "_source": [
+                                            "runner.name",
+                                            "runner.trainer.name",
+                                            "runner.jockey.name"
+                                          ]
+                                        }
                                       }
                                     }
-                                  ],
-                                  "tie_breaker": 0.3
+                                  ]
                                 }
                               },
                               "sort": [
@@ -170,7 +201,4 @@ api {
         }
     }
 }
-
-
-
 
