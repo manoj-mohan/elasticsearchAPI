@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
 import org.springframework.web.servlet.ModelAndView
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -34,7 +35,7 @@ api {
                                 "name",
                                 "raceId",
                                 "hlsURL",
-                                "replayImgURL",
+                                "replayImgURL"
                               ],
                               "query": {
                                 "dis_max": {
@@ -82,54 +83,40 @@ api {
                                     },
                                     {
                                       "nested": {
-                                        "path": "runner",
+                                        "path": "runners",
                                         "score_mode": "avg",
                                         "query": {
                                           "multi_match": {
                                             "query": "##SEARCH_QUERY##",
                                             "fields": [
-                                              "runner.name",
-                                              "runner.trainer.name",
-                                              "runner.jockey.name"
+                                              "runners.name",
+                                              "runners.trainer.name",
+                                              "runners.jockey.name"
                                             ],
                                             "minimum_should_match": 2,
                                             "fuzziness": 0,
                                             "prefix_length": 2,
                                             "boost": 5
                                           }
-                                        },
-                                        "inner_hits": {
-                                          "_source": [
-                                            "runner.name",
-                                            "runner.trainer.name",
-                                            "runner.jockey.name"
-                                          ]
                                         }
                                       }
                                     },
                                     {
                                       "nested": {
-                                        "path": "runner",
+                                        "path": "runners",
                                         "score_mode": "avg",
                                         "query": {
                                           "multi_match": {
                                             "query": "##SEARCH_QUERY##",
                                             "fields": [
-                                              "runner.name",
-                                              "runner.trainer.name",
-                                              "runner.jockey.name"
+                                              "runners.name",
+                                              "runners.trainer.name",
+                                              "runners.jockey.name"
                                             ],
                                             "minimum_should_match": 2,
                                             "fuzziness": "AUTO",
                                             "prefix_length": 2
                                           }
-                                        },
-                                        "inner_hits": {
-                                          "_source": [
-                                            "runner.name",
-                                            "runner.trainer.name",
-                                            "runner.jockey.name"
-                                          ]
                                         }
                                       }
                                     }
@@ -161,14 +148,25 @@ api {
                 }
                 post {
                     json = { ResponseDTO body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response ->
-                        def responseJSON = new JsonSlurper().parseText(body.getSearchResponse())
+                        String responseText = body.getSearchResponse()
+                         responseText = StringUtils.replace(responseText,/"raceId"/,/"id"/)
+                         responseText = StringUtils.replace(responseText,/"hlsURL"/,/"hlsConsumerURL"/)
+                         responseText = StringUtils.replace(responseText,/"name"/,/"title"/)
+                         responseText = StringUtils.replace(responseText,/"replayImgURL"/,/"image"/)
+                        def responseJSON = new JsonSlurper().parseText(responseText)
                         ResponseCode responseCode = (body.status.statusCode == HttpStatus.OK.value()) ? (responseJSON.hits.total as int ? ResponseCode.SUCCESS : ResponseCode.NO_DATA_FOUND) : (ResponseCode.ERROR)
+
                         Map modifiedResponse = [
                                 data   : [
                                         totalCount: responseJSON.hits.total,
                                         max       : body.max,
                                         offset    : body.offset,
-                                        items     : responseJSON.hits.hits
+                                        items     : responseJSON.hits.hits*._source.collect {
+                                            it."isHD" = false
+                                            it."contentType" = "RACE"
+                                            it
+
+                                        }
                                 ],
                                 message: responseCode.message,
                                 code   : responseCode.ordinal
